@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Constellation of us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky-top:#0c0f2e; --sky-mid:#161339; --sky-low:#2c1746;
+  --star:#fff3d1; --line:#f4b8cb; --ink:#ede7ff; --muted:#a39bcf;
+  --veil:rgba(12,10,36,.82);
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --sky-top:#0c0f2e; --sky-mid:#161339; --sky-low:#2c1746;
+    --star:#fff3d1; --line:#f4b8cb; --ink:#ede7ff; --muted:#a39bcf;
+    --veil:rgba(12,10,36,.82);
+  }
+}
+:root[data-theme="dark"]{
+  --sky-top:#0c0f2e; --sky-mid:#161339; --sky-low:#2c1746;
+  --star:#fff3d1; --line:#f4b8cb; --ink:#ede7ff; --muted:#a39bcf;
+  --veil:rgba(12,10,36,.82);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 115%, var(--sky-low) 0%, transparent 70%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 65%, var(--sky-low) 100%);
+  background-color:var(--sky-top);
+  color:var(--ink);
+  font-family:"Cedarville Cursive","Segoe Script","Bradley Hand",cursive;
+  font-synthesis:none;
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+#sky{position:fixed;inset:0;width:100%;height:100%;display:block}
+#field{position:fixed;inset:0}
+
+.intro{
+  position:fixed;top:0;left:0;right:0;
+  padding:calc(env(safe-area-inset-top,0px) + 5vh) 24px 0;
+  text-align:center;pointer-events:none;
+  transition:opacity 1.2s ease;
+}
+.intro.dim{opacity:.35}
+h1{
+  margin:0;font-weight:400;font-style:italic;
+  font-size:clamp(2.3rem,7vw,3.8rem);line-height:1.05;
+  text-shadow:0 0 24px rgba(244,184,203,.25);
+}
+.intro p{margin:.5rem auto 0;max-width:30ch;color:var(--muted);font-size:1.2rem;line-height:1.4}
+
+.status{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:0 24px calc(env(safe-area-inset-bottom,0px) + 4vh);
+  text-align:center;color:var(--muted);font-style:italic;font-size:1.15rem;
+  pointer-events:none;transition:opacity .8s;
+}
+
+.star{
+  position:absolute;width:48px;height:48px;margin:-24px 0 0 -24px;
+  border:0;padding:0;background:transparent;border-radius:50%;cursor:pointer;
+}
+.star::before{
+  content:"";position:absolute;left:50%;top:50%;
+  width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;
+  background:var(--star);
+  box-shadow:0 0 8px 2px rgba(255,243,209,.5);
+  animation:beckon 3.4s ease-in-out infinite;animation-delay:var(--d,0s);
+  transition:width .6s,height .6s,margin .6s,box-shadow .6s;
+}
+.star.read::before{
+  width:11px;height:11px;margin:-5.5px 0 0 -5.5px;animation:none;opacity:1;
+  box-shadow:0 0 14px 4px rgba(255,243,209,.75),0 0 38px 12px rgba(244,184,203,.28);
+}
+@keyframes beckon{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.6);opacity:1}}
+.star:focus-visible,.core:focus-visible{outline:1.5px solid var(--line);outline-offset:3px}
+
+.core{
+  position:absolute;width:72px;height:72px;margin:-36px 0 0 -36px;
+  border:0;padding:0;background:transparent;border-radius:50%;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity 2s ease;
+}
+.core.show{opacity:1;pointer-events:auto}
+.core::before{
+  content:"";position:absolute;left:50%;top:50%;
+  width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 16px 5px rgba(255,243,209,.85),0 0 48px 18px rgba(244,184,203,.45);
+  animation:heartbeat 2.6s ease-in-out infinite;
+}
+.core.faded::before{animation:none;opacity:.35;box-shadow:0 0 10px 3px rgba(244,184,203,.3)}
+.core span{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-style:italic;font-size:1.15rem;color:var(--line);
+}
+@keyframes heartbeat{0%,100%{transform:scale(1)}12%{transform:scale(1.35)}24%{transform:scale(1)}36%{transform:scale(1.22)}60%{transform:scale(1)}}
+
+.veil{
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 24px);
+  background:var(--veil);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .6s ease;
+}
+.veil.open{opacity:1;pointer-events:auto}
+.panel{max-width:34rem;width:100%;max-height:100%;overflow-y:auto;text-align:center}
+.skychart{display:block;margin:0 auto;width:min(78vw,42vh,340px);aspect-ratio:1/1;border-radius:50%}
+.skychart[hidden],.skycap[hidden]{display:none}
+.skycap{color:var(--muted);font-style:italic;font-size:1rem;line-height:1.4;margin:.6rem 0 1.4rem}
+.skycap b{font-weight:500;color:var(--line)}
+.panel > *{transition:opacity .8s ease}
+.veil.leaving .panel > :not(.skychart){opacity:0}
+.panel .when{color:var(--muted);font-style:italic;font-size:1.15rem}
+.panel h2{font-weight:500;font-size:clamp(1.8rem,5vw,2.4rem);line-height:1.15;margin:.3rem 0 1rem}
+.panel p.body{font-size:clamp(1.25rem,3.6vw,1.4rem);line-height:1.6;margin:0 0 2rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.quiet{
+  font:inherit;font-size:1.15rem;color:var(--ink);background:none;cursor:pointer;
+  border:1px solid rgba(237,231,255,.35);border-radius:999px;padding:.5rem 1.5rem;
+  transition:border-color .3s,background .3s;
+}
+.quiet:hover{border-color:var(--line)}
+.quiet.warm{border-color:var(--line);background:rgba(244,184,203,.12)}
+.quiet:focus-visible{outline:1.5px solid var(--line);outline-offset:3px}
+
+.letter{
+  max-width:36rem;width:100%;max-height:100%;overflow-y:auto;
+  text-align:left;font-size:clamp(1.25rem,3.6vw,1.5rem);line-height:1.7;
+  text-shadow:0 0 14px rgba(255,243,209,.22);
+}
+.letter p{margin:0 0 1.1em}
+.letter .w{display:inline-block;transition:opacity 2.2s ease,transform 2.8s ease,filter 2.2s ease}
+.letter .w.gone{opacity:0;filter:blur(3px);transform:translate(var(--dx),var(--dy))}
+.letter .sig{font-family:"Cedarville Cursive","Segoe Script","Bradley Hand",cursive;font-size:1.9rem;line-height:1.3;margin-top:.4em}
+.clock{margin-top:1.6rem;transition:opacity 1s}
+.clock .bar{height:1px;background:var(--line);transform-origin:left center;box-shadow:0 0 6px var(--line)}
+.clock .secs{margin-top:.5rem;color:var(--muted);font-style:italic;font-size:1rem;text-align:right}
+.after{text-align:center;opacity:0;transition:opacity 1.6s ease;display:none}
+.after.show{opacity:1}
+.after p{font-size:clamp(1.35rem,4vw,1.6rem);font-style:italic;margin:0 0 1.6rem}
+
+@media (prefers-reduced-motion: reduce){
+  .star::before,.core::before{animation:none}
+  .letter .w{transition:opacity 1.6s ease}
+  .letter .w.gone{transform:none;filter:none}
+}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="field"></div>
+
+<header class="intro" id="intro">
+  <h1 id="title">For my love</h1>
+  <p>Each star is a moment of ours. Touch one to remember it.</p>
+</header>
+<div class="status" id="status" aria-live="polite"></div>
+
+<div class="veil" id="memoryVeil" role="dialog" aria-modal="true" aria-labelledby="memTitle">
+  <div class="panel">
+    <canvas class="skychart" id="skyChart" role="img" hidden></canvas>
+    <div class="skycap" id="skyCap" hidden></div>
+    <div class="when" id="memWhen"></div>
+    <h2 id="memTitle"></h2>
+    <p class="body" id="memText"></p>
+    <div class="actions"><button class="quiet" id="memClose">Back to the stars</button></div>
+  </div>
+</div>
+
+<div class="veil" id="gateVeil" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="panel">
+    <h2 id="gateTitle">A letter for you</h2>
+    <p class="body" id="gateText">It can only be read once. When you open it, you'll have 30 seconds with it before it fades.</p>
+    <div class="actions" id="gateActions">
+      <button class="quiet" id="gateLater">Not yet</button>
+      <button class="quiet warm" id="gateOpen">Open the letter</button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="letterVeil" role="dialog" aria-modal="true" aria-label="Your letter">
+  <div class="letter" id="letter">
+    <div id="letterBody"></div>
+    <div class="clock" id="clock"><div class="bar" id="bar"></div><div class="secs" id="secs">30</div></div>
+  </div>
+  <div class="after" id="after">
+    <p>It's gone now, but every word is still true.</p>
+    <button class="quiet" id="afterClose">Back to the stars</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Make it yours: change the names, memories and letter below.
+   ============================================================ */
+const CONFIG = {
+  to: "my love",
+  from: "Me",
+  // Where you were. Find latitude/longitude by right-clicking a spot in Google Maps.
+  place: { name: "San Antonio", lat: 29.42, lon: -98.49 },
+  // date: "YYYY-MM-DD HH:MM" (24-hour, local time). Each star shows the real sky at that moment.
+  // A memory can also have its own place: { name, lat, lon } if it happened somewhere else.
+  memories: [
+    { date: "2026-04-25 11:57", when: "The day we met", title: "The first hello", text: " Who would of known we would be doing creampies and loving eachother so deeply." },
+    { date: "2026-07-10 10:30", when: "Our first hang", title: "SOJU for the win", text: "We hung out for the first time and I was manic and you looked so cute couldnt help but to kiss you." },
+    { date: "2026-08-13 16:10", when: "Coming back from aruba", title: "wait?I like him??", text: "I almost canceled because I was so nervous. I realized I was developing feelings for you." },
+    { date: "2026-08-08 23:15", when: "StayCation ", title: "Normal days are adventures with you ", text: "I thought when you came to pick me up I was gonna have to train u and noooo bby you you proved me wronggg you showed me that you dnt need to be told becuase you just got it like that .... MY MANS MY MANS." },
+    { date: "2026-09-19 21:40", when: "Austin, take over", title: "My Protector", text: "The night that I decided that I did wanna be your gf." },
+    { date: "2026-10-03 22:00", when: "Favorite Date", title: "My mannnss and I", text: "we went to eat at best Quality daughter, had drinks my type of night. I felt so loved and I had so much fun. Living Live with you is so much fun" },
+    { date: "2026-10-13 05:30", when: "Every morning", title: "Waking up next to you", text: "Of all the things I'm grateful for, this is the one I never want to take for granted." }
+  ],
+  letter: `
+I made you a sky because I ran out of other ways to say it. Every star up there is a moment I carry with me, and there are so many more I couldn't fit.
+
+You make the ordinary days feel like something worth remembering. You make the hard days softer. You make me want to be someone who deserves the way you look at me.
+
+This letter won't last, but what it says will. I love you, today and every day after.
+`
+};
+/* ============================================================ */
+
+const N = CONFIG.memories.length;
+const STEP = Math.PI * 2 / N;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KEY = 'constellation-letter-faded';
+
+let letterGone = false;
+try {
+  if (new URLSearchParams(location.search).has('again')) localStorage.removeItem(KEY);
+  letterGone = localStorage.getItem(KEY) === '1';
+} catch (e) {}
+
+const $ = id => document.getElementById(id);
+document.title = 'For ' + CONFIG.to;
+$('title').textContent = 'For ' + CONFIG.to;
+
+const read = new Array(N).fill(false);
+const active = new Array(N).fill(false);
+const seg = new Array(N).fill(0);
+let complete = false;
+let lastFocus = null;
+
+/* ---------- stars as buttons ---------- */
+const field = $('field');
+const starEls = CONFIG.memories.map((m, i) => {
+  const b = document.createElement('button');
+  b.className = 'star';
+  b.style.setProperty('--d', (Math.random() * 3).toFixed(2) + 's');
+  b.setAttribute('aria-label', 'Memory: ' + m.title);
+  b.addEventListener('click', () => openMemory(i));
+  field.appendChild(b);
+  return b;
+});
+const core = document.createElement('button');
+core.className = 'core';
+core.setAttribute('aria-label', 'Open the letter');
+const coreLabel = document.createElement('span');
+coreLabel.textContent = 'A letter for you';
+core.appendChild(coreLabel);
+core.addEventListener('click', openGate);
+field.appendChild(core);
+
+/* ---------- canvas sky ---------- */
+const cv = $('sky'), ctx = cv.getContext('2d');
+let W, H, s, cx, cy;
+const bg = Array.from({ length: 260 }, () => ({
+  x: Math.random(), y: Math.random(),
+  r: Math.random() * 1.1 + 0.2, p: Math.random() * 6.28, v: 0.4 + Math.random() * 1.2
+}));
+
+function hp(t) {
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+  return [cx + x * s, cy - (y + 2.5) * s];
+}
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  s = Math.min(W * 0.78 / 32, H * 0.52 / 29);
+  cx = W / 2; cy = H * 0.54;
+  starEls.forEach((b, i) => {
+    const [x, y] = hp(i * STEP);
+    b.style.left = x + 'px'; b.style.top = y + 'px';
+  });
+  core.style.left = cx + 'px'; core.style.top = (cy - s * 1.5) + 'px';
+}
+addEventListener('resize', resize);
+resize();
+
+let last = performance.now();
+let shoot = null, nextShoot = last + 7000;
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  const tm = now / 1000;
+  ctx.clearRect(0, 0, W, H);
+
+  for (const b of bg) {
+    const a = reduce ? 0.55 : 0.2 + 0.6 * (0.5 + 0.5 * Math.sin(tm * b.v + b.p));
+    ctx.fillStyle = 'rgba(255,243,209,' + a.toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(b.x * W, b.y * H, b.r, 0, 6.283); ctx.fill();
+  }
+
+  if (!reduce) {
+    if (!shoot && now > nextShoot) {
+      shoot = { x: Math.random() * W * 0.6, y: Math.random() * H * 0.25, start: now };
+      nextShoot = now + 10000 + Math.random() * 14000;
+    }
+    if (shoot) {
+      const p = (now - shoot.start) / 900;
+      if (p > 1) shoot = null;
+      else {
+        const hx = shoot.x + p * 280, hy = shoot.y + p * 110;
+        const g = ctx.createLinearGradient(hx - 90, hy - 35, hx, hy);
+        g.addColorStop(0, 'rgba(255,243,209,0)');
+        g.addColorStop(1, 'rgba(255,243,209,' + (0.8 * (1 - p)).toFixed(3) + ')');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(hx - 90, hy - 35); ctx.lineTo(hx, hy); ctx.stroke();
+      }
+    }
+  }
+
+  const glow = complete ? 0.3 + 0.2 * Math.sin(tm * 1.6) : 0;
+  ctx.save();
+  ctx.lineWidth = complete ? 1.6 : 1.2;
+  ctx.strokeStyle = 'rgba(244,184,203,' + (0.55 + glow).toFixed(3) + ')';
+  ctx.shadowColor = 'rgba(244,184,203,.9)';
+  ctx.shadowBlur = complete ? 14 : 8;
+  let all = true;
+  for (let k = 0; k < N; k++) {
+    if (active[k] && seg[k] < 1) seg[k] = Math.min(1, seg[k] + dt / (reduce ? 0.2 : 1.4));
+    if (seg[k] < 1) all = false;
+    if (seg[k] <= 0) continue;
+    const t0 = k * STEP, t1 = t0 + STEP * seg[k];
+    ctx.beginPath();
+    for (let j = 0; j <= 24; j++) {
+      const [x, y] = hp(t0 + (t1 - t0) * j / 24);
+      j ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  if (all && !complete) { complete = true; onComplete(); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- status ---------- */
+function updateStatus() {
+  const n = read.filter(Boolean).length;
+  const st = $('status');
+  if (letterGone && complete) st.textContent = 'The letter has faded. The stars stay.';
+  else if (complete) st.textContent = 'Every star is lit. Something is waiting in the middle.';
+  else if (n === 0) st.textContent = '';
+  else st.textContent = n + ' of ' + N + ' stars remembered';
+}
+
+function onComplete() {
+  core.classList.add('show');
+  if (letterGone) {
+    core.classList.add('faded');
+    coreLabel.textContent = '';
+    core.setAttribute('aria-label', 'The letter has faded');
+  }
+  updateStatus();
+}
+
+/* ---------- the real sky on a given night ---------- */
+const D2R = Math.PI / 180;
+const SKY_DATA = 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/';
+const toRA = lon => lon < 0 ? lon + 360 : lon;
+
+const skyReady = Promise.all(
+  ['stars.6.json', 'constellations.lines.json', 'constellations.json']
+    .map(f => fetch(SKY_DATA + f).then(r => { if (!r.ok) throw r; return r.json(); }))
+).then(([stars, lines, names]) => ({
+  stars: stars.features
+    .filter(f => f.properties.mag <= 5.3)
+    .map(f => [toRA(f.geometry.coordinates[0]), f.geometry.coordinates[1], f.properties.mag]),
+  lines: Object.fromEntries(lines.features.map(f => [f.id,
+    f.geometry.coordinates.map(l => l.map(([lo, la]) => [toRA(lo), la]))])),
+  names: names.features.map(f => ({
+    id: f.id, name: f.properties.en || f.properties.name, rank: +f.properties.rank,
+    ra: toRA(f.geometry.coordinates[0]), dec: f.geometry.coordinates[1]
+  }))
+})).catch(() => null);
+
+function parseWhen(s) {
+  const d = new Date(String(s).trim().replace(' ', 'T'));
+  return isNaN(d) ? null : d;
+}
+function lstDeg(date, lon) {
+  const d = date.getTime() / 86400000 + 2440587.5 - 2451545;
+  return ((280.46061837 + 360.98564736629 * d + lon) % 360 + 360) % 360;
+}
+// alt/az in radians; azimuth from north toward east
+function altAz(ra, dec, lst, lat) {
+  const h = (lst - ra) * D2R, d = dec * D2R, p = lat * D2R;
+  const alt = Math.asin(Math.sin(d) * Math.sin(p) + Math.cos(d) * Math.cos(p) * Math.cos(h));
+  const az = Math.atan2(-Math.cos(d) * Math.sin(h), Math.sin(d) * Math.cos(p) - Math.cos(d) * Math.sin(p) * Math.cos(h));
+  return [alt, az];
+}
+function eclToEq(lon, lat) {
+  const e = 23.439 * D2R, l = lon * D2R, b = lat * D2R;
+  const ra = Math.atan2(Math.sin(l) * Math.cos(e) - Math.tan(b) * Math.sin(e), Math.cos(l)) / D2R;
+  const dec = Math.asin(Math.sin(b) * Math.cos(e) + Math.cos(b) * Math.sin(e) * Math.sin(l)) / D2R;
+  return [(ra + 360) % 360, dec];
+}
+// low-precision sun and moon, good to about a degree
+function sunMoon(date) {
+  const d = date.getTime() / 86400000 + 2440587.5 - 2451545;
+  const g = (357.528 + 0.9856003 * d) * D2R;
+  const sunLon = 280.460 + 0.9856474 * d + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
+  const M = (134.963 + 13.064993 * d) * D2R, F = (93.272 + 13.229350 * d) * D2R;
+  const moonLon = 218.316 + 13.176396 * d + 6.289 * Math.sin(M);
+  const moonLat = 5.128 * Math.sin(F);
+  const phase = (((moonLon - sunLon) % 360) + 360) % 360;
+  return { sun: eclToEq(sunLon, 0), moon: eclToEq(moonLon, moonLat), phase };
+}
+function phaseName(p) {
+  const names = ['new moon', 'waxing crescent moon', 'first quarter moon', 'waxing gibbous moon',
+                 'full moon', 'waning gibbous moon', 'last quarter moon', 'waning crescent moon'];
+  return names[Math.round(p / 45) % 8];
+}
+
+const chart = $('skyChart'), cap = $('skyCap');
+let chartAnim = 0, skyToken = 0, chartRender = null;
+
+function drawMoon(c, x, y, r, phase) {
+  const k = Math.cos(phase * D2R), litRight = phase < 180, crescent = k > 0;
+  c.fillStyle = 'rgba(255,243,209,.12)';
+  c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill();
+  c.fillStyle = '#fff6dc';
+  c.shadowColor = 'rgba(255,243,209,.8)'; c.shadowBlur = 10;
+  c.beginPath();
+  c.arc(x, y, r, -Math.PI / 2, Math.PI / 2, !litRight);
+  c.ellipse(x, y, Math.abs(k) * r, r, 0, Math.PI / 2, -Math.PI / 2, litRight === crescent);
+  c.fill();
+  c.shadowBlur = 0;
+}
+
+async function showSky(m) {
+  cancelAnimationFrame(chartAnim);
+  const token = ++skyToken;
+  chartRender = null;
+  const date = parseWhen(m.date);
+  const place = m.place || CONFIG.place;
+  if (!date || !place) { chart.hidden = cap.hidden = true; return; }
+  chart.hidden = cap.hidden = false;
+  cap.textContent = 'Finding the stars from that night…';
+  const sky = await skyReady;
+  if (token !== skyToken) return;
+  if (!sky) { cap.textContent = 'The sky chart needs an internet connection to load.'; chart.hidden = true; return; }
+
+  const lst = lstDeg(date, place.lon);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const size = chart.clientWidth || 300;
+  chart.width = chart.height = size * dpr;
+  const c = chart.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const R = size / 2 - 2, cx0 = size / 2, cy0 = size / 2;
+  // stereographic projection, zenith in the middle, horizon at the rim, north up, east left
+  const proj = (ra, dec) => {
+    const [alt, az] = altAz(ra, dec, lst, place.lat);
+    const r = R * Math.tan((Math.PI / 2 - alt) / 2);
+    return [cx0 - r * Math.sin(az), cy0 - r * Math.cos(az), alt];
+  };
+
+  // the constellation closest to straight overhead is "theirs" for that night
+  let top = null;
+  for (const n of sky.names) {
+    const [, , alt] = proj(n.ra, n.dec);
+    if (sky.lines[n.id] && (!top || alt > top.alt)) top = { ...n, alt };
+  }
+
+  const sm = sunMoon(date);
+  const sunAlt = proj(...sm.sun)[2] / D2R;
+  const moon = proj(...sm.moon);
+
+  const when = date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) +
+    ', ' + date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  cap.innerHTML = '';
+  cap.append('The sky over ' + place.name + ', ' + when + '.');
+  cap.appendChild(document.createElement('br'));
+  if (top) { cap.append('Overhead: '); const b = document.createElement('b'); b.textContent = top.name; cap.appendChild(b); cap.append('. '); }
+  if (moon[2] > 0) cap.append('A ' + phaseName(sm.phase) + ' was up.');
+  if (sunAlt > -6) { cap.appendChild(document.createElement('br')); cap.append('Daylight hid them, but they were there.'); }
+  chart.setAttribute('aria-label', 'Star chart of the sky over ' + place.name + ' on ' + when +
+    (top ? ', with ' + top.name + ' overhead' : ''));
+
+  const day = Math.max(0, Math.min(1, (sunAlt + 12) / 12));
+  const jit = Float32Array.from({ length: sky.stars.length * 2 }, Math.random);
+  // p: fade-in progress; s: shoot-away progress when the memory closes
+  const render = (p, s = 0) => {
+    const fade = 1 - Math.min(1, s * 1.6);
+    c.clearRect(0, 0, size, size);
+    c.save();
+    c.beginPath(); c.arc(cx0, cy0, R, 0, 6.283); c.clip();
+    c.globalAlpha = fade;
+    const g = c.createRadialGradient(cx0, cy0, 0, cx0, cy0, R);
+    g.addColorStop(0, day ? 'rgba(60,70,130,' + (0.35 + 0.35 * day) + ')' : 'rgba(18,16,52,.85)');
+    g.addColorStop(1, day ? 'rgba(120,110,170,' + (0.35 + 0.35 * day) + ')' : 'rgba(40,22,72,.85)');
+    c.fillStyle = g; c.fillRect(0, 0, size, size);
+
+    for (const [id, segs] of Object.entries(sky.lines)) {
+      const mine = top && id === top.id;
+      c.strokeStyle = mine ? 'rgba(244,184,203,' + (0.95 * p) + ')' : 'rgba(163,155,207,' + (0.35 * p) + ')';
+      c.lineWidth = mine ? 1.6 : 0.8;
+      c.shadowColor = 'rgba(244,184,203,.9)'; c.shadowBlur = mine ? 8 : 0;
+      c.beginPath();
+      for (const line of segs) {
+        let prev = null;
+        for (const [ra, dec] of line) {
+          const pt = proj(ra, dec);
+          if (prev && prev[2] > -0.15 && pt[2] > -0.15) { c.moveTo(prev[0], prev[1]); c.lineTo(pt[0], pt[1]); }
+          prev = pt;
+        }
+      }
+      c.stroke();
+    }
+    c.shadowBlur = 0;
+
+    if (moon[2] > 0) drawMoon(c, moon[0], moon[1], 7, sm.phase);
+
+    c.globalAlpha = 1;
+    c.lineCap = 'round';
+    sky.stars.forEach(([ra, dec, mag], i) => {
+      let [x, y, alt] = proj(ra, dec);
+      if (alt < 0) return;
+      const r = Math.max(0.45, (5.6 - mag) * 0.5);
+      let a = Math.min(1, 0.35 + (5.5 - mag) * 0.18);
+      if (s > 0) {
+        // each star streaks off down-right on its own delay and speed, trailing a tail
+        const q = Math.max(0, Math.min(1, (s - jit[2 * i] * 0.4) / 0.6));
+        if (q >= 1) return;
+        const dist = q * q * size * (0.9 + jit[2 * i + 1] * 0.9);
+        const tail = Math.min(dist, 12 + 70 * q);
+        const hx = x + 0.93 * dist, hy = y + 0.37 * dist;
+        a *= 1 - q * q;
+        if (tail > 1) {
+          const g = c.createLinearGradient(hx - 0.93 * tail, hy - 0.37 * tail, hx, hy);
+          g.addColorStop(0, 'rgba(255,243,209,0)');
+          g.addColorStop(1, 'rgba(255,243,209,' + a.toFixed(3) + ')');
+          c.strokeStyle = g; c.lineWidth = r * 1.4;
+          c.beginPath(); c.moveTo(hx - 0.93 * tail, hy - 0.37 * tail); c.lineTo(hx, hy); c.stroke();
+        }
+        x = hx; y = hy;
+      }
+      c.fillStyle = 'rgba(255,243,209,' + a.toFixed(3) + ')';
+      c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill();
+    });
+    c.globalAlpha = fade;
+
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (const n of sky.names) {
+      const mine = top && n.id === top.id;
+      if (!mine && n.rank !== 1) continue;
+      const [x, y, alt] = proj(n.ra, n.dec);
+      if (alt < 12 * D2R) continue;
+      c.font = (mine ? '17px ' : '13px ') + '"Cedarville Cursive", cursive';
+      c.fillStyle = mine ? 'rgba(244,184,203,' + p + ')' : 'rgba(163,155,207,' + (0.6 * p) + ')';
+      c.fillText(n.name, x, y + (mine ? 14 : 0));
+    }
+    c.restore();
+
+    c.globalAlpha = fade;
+    c.strokeStyle = 'rgba(244,184,203,.35)'; c.lineWidth = 1;
+    c.beginPath(); c.arc(cx0, cy0, R, 0, 6.283); c.stroke();
+    c.font = '13px "Cedarville Cursive", cursive'; c.fillStyle = 'rgba(237,231,255,.7)';
+    c.fillText('N', cx0, cy0 - R + 10); c.fillText('S', cx0, cy0 + R - 10);
+    c.fillText('E', cx0 - R + 10, cy0); c.fillText('W', cx0 + R - 10, cy0);
+    c.globalAlpha = 1;
+  };
+  chartRender = render;
+
+  if (reduce) { render(1); return; }
+  const t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / 1600);
+    render(p);
+    if (p < 1) chartAnim = requestAnimationFrame(step);
+  };
+  chartAnim = requestAnimationFrame(step);
+}
+
+/* ---------- veils ---------- */
+function show(v, focusEl) { lastFocus = document.activeElement; v.classList.add('open'); if (focusEl) setTimeout(() => focusEl.focus(), 50); }
+function hide(v) { v.classList.remove('open'); if (lastFocus) lastFocus.focus(); }
+
+function openMemory(i) {
+  const m = CONFIG.memories[i];
+  $('memWhen').textContent = m.when;
+  $('memTitle').textContent = m.title;
+  $('memText').textContent = m.text;
+  read[i] = true;
+  starEls[i].classList.add('read');
+  $('intro').classList.add('dim');
+  openIdx = i;
+  show($('memoryVeil'), $('memClose'));
+  showSky(m);
+}
+let openIdx = -1, closing = false;
+function closeMemory() {
+  if (closing) return;
+  const veil = $('memoryVeil');
+  const finish = () => {
+    closing = false;
+    veil.classList.remove('leaving');
+    hide(veil);
+    // one last shooting star leaves from this memory's star in the heart
+    if (!reduce && openIdx >= 0) {
+      const b = starEls[openIdx];
+      shoot = { x: parseFloat(b.style.left), y: parseFloat(b.style.top), start: performance.now() };
+    }
+    afterClose();
+  };
+  const render = chartRender;
+  if (!render || chart.hidden || reduce) { finish(); return; }
+  closing = true;
+  ++skyToken;
+  cancelAnimationFrame(chartAnim);
+  veil.classList.add('leaving');
+  const t0 = performance.now();
+  const step = now => {
+    const s = Math.min(1, (now - t0) / 1300);
+    render(1, s);
+    if (s < 1) chartAnim = requestAnimationFrame(step);
+    else finish();
+  };
+  chartAnim = requestAnimationFrame(step);
+}
+function afterClose() {
+  for (let k = 0; k < N; k++) if (read[k] && read[(k + 1) % N]) active[k] = true;
+  updateStatus();
+}
+$('memClose').addEventListener('click', closeMemory);
+$('memoryVeil').addEventListener('click', e => { if (e.target.id === 'memoryVeil') closeMemory(); });
+
+function openGate() {
+  if (letterGone) {
+    $('gateTitle').textContent = 'The letter has faded';
+    $('gateText').textContent = 'It was read once and returned to the stars. Its words were meant for that one moment.';
+    $('gateOpen').style.display = 'none';
+    $('gateLater').textContent = 'Back to the stars';
+  }
+  show($('gateVeil'), letterGone ? $('gateLater') : $('gateOpen'));
+}
+$('gateLater').addEventListener('click', () => hide($('gateVeil')));
+$('gateVeil').addEventListener('click', e => { if (e.target.id === 'gateVeil') hide($('gateVeil')); });
+$('gateOpen').addEventListener('click', () => { $('gateVeil').classList.remove('open'); openLetter(); });
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('memoryVeil').classList.contains('open')) closeMemory();
+  else if ($('gateVeil').classList.contains('open')) hide($('gateVeil'));
+});
+
+/* ---------- the letter ---------- */
+let words = [];
+function buildLetter() {
+  const body = $('letterBody');
+  body.innerHTML = '';
+  words = [];
+  const addPara = (text, cls) => {
+    const p = document.createElement('p');
+    if (cls) p.className = cls;
+    text.split(/\s+/).filter(Boolean).forEach((w, i) => {
+      if (i) p.appendChild(document.createTextNode(' '));
+      const sp = document.createElement('span');
+      sp.className = 'w'; sp.textContent = w;
+      p.appendChild(sp); words.push(sp);
+    });
+    body.appendChild(p);
+  };
+  addPara('Dear ' + CONFIG.to + ',');
+  CONFIG.letter.trim().split(/\n\s*\n/).forEach(t => addPara(t));
+  addPara('Always, ' + CONFIG.from, 'sig');
+}
+
+function openLetter() {
+  buildLetter();
+  letterGone = true;
+  try { localStorage.setItem(KEY, '1'); } catch (e) {}
+  show($('letterVeil'), $('letter'));
+  $('letter').setAttribute('tabindex', '-1');
+  const start = performance.now(), DUR = 30000;
+  const tick = now => {
+    const e = now - start;
+    const left = Math.max(0, DUR - e);
+    $('bar').style.transform = 'scaleX(' + (left / DUR).toFixed(4) + ')';
+    $('secs').textContent = Math.ceil(left / 1000);
+    if (left > 0) requestAnimationFrame(tick);
+    else dissolve();
+  };
+  requestAnimationFrame(tick);
+}
+
+function dissolve() {
+  $('clock').style.opacity = '0';
+  words.forEach(w => {
+    w.style.setProperty('--dx', (Math.random() * 50 - 25).toFixed(1) + 'px');
+    w.style.setProperty('--dy', (-(20 + Math.random() * 70)).toFixed(1) + 'px');
+    w.style.transitionDelay = (reduce ? 0 : Math.random() * 1.8).toFixed(2) + 's';
+  });
+  requestAnimationFrame(() => words.forEach(w => w.classList.add('gone')));
+  setTimeout(() => {
+    $('letter').style.display = 'none';
+    const a = $('after');
+    a.style.display = 'block';
+    requestAnimationFrame(() => a.classList.add('show'));
+    $('afterClose').focus();
+  }, reduce ? 1800 : 4600);
+}
+
+$('afterClose').addEventListener('click', () => {
+  hide($('letterVeil'));
+  core.classList.add('faded');
+  coreLabel.textContent = '';
+  core.setAttribute('aria-label', 'The letter has faded');
+  updateStatus();
+});
+
+/* ---------- returning visit ---------- */
+if (letterGone) {
+  for (let i = 0; i < N; i++) { read[i] = true; active[i] = true; seg[i] = 1; starEls[i].classList.add('read'); }
+  $('intro').classList.add('dim');
+}
+</script>
+</body>
+</html>
